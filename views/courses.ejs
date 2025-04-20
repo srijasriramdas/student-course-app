@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Courses</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <h1>📘 All Courses</h1>
+
+  <!-- 🔍 Department Filter -->
+  <form action="/courses" method="GET" style="margin-bottom: 20px;">
+    <select name="department">
+      <option value="">All Departments</option>
+      <option value="CSE" <%= departmentFilter === 'CSE' ? 'selected' : '' %>>CSE</option>
+      <option value="ECE" <%= departmentFilter === 'ECE' ? 'selected' : '' %>>ECE</option>
+      <option value="IT" <%= departmentFilter === 'IT' ? 'selected' : '' %>>IT</option>
+      <option value="BT" <%= departmentFilter === 'BT' ? 'selected' : '' %>>BT</option>
+    </select>
+    <button type="submit">Filter</button>
+    <a href="/courses">Reset</a>
+  </form>
+
+  <!-- ➕ Add New Course Form -->
+  <form action="/courses" method="POST" style="margin-bottom: 20px;">
+    <input type="text" name="title" placeholder="Course Title" required>
+    <input type="text" name="description" placeholder="Description" required>
+    <select name="department" required>
+      <option value="">Select Department</option>
+      <option value="CSE">Computer Science and Engineering (CSE)</option>
+      <option value="ECE">Electronics and Communication Engineering (ECE)</option>
+      <option value="IT">Information Technology (IT)</option>
+      <option value="BT">Biotechnology</option>
+    </select>
+    <button type="submit">Add Course</button>
+  </form>
+
+  <!-- 📝 Course List -->
+  <ul>
+    <% courses.forEach(course => { %>
+      <li>
+        <strong><%= course.title %></strong> - <%= course.description %> (<%= course.department %>)
+        <form action="/courses/delete/<%= course.id %>" method="POST" style="display:inline;">
+          <button type="submit" onclick="return confirm('Are you sure?')">🗑️ Delete</button>
+        </form>
+      </li>
+    <% }); %>
+  </ul>
+
+  <a href="/">⬅ Back to Home</a>
+</body>
+</html>

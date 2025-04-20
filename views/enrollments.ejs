@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>📄 Enrollments</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <h1>📄 All Enrollments</h1>
+
+  <ul>
+    <% enrollments.forEach(enrollment => { %>
+      <li><strong><%= enrollment.student %></strong> is enrolled in <strong><%= enrollment.course %></strong></li>
+    <% }); %>
+  </ul>
+
+  <a href="/">⬅ Back to Home</a>
+</body>
+</html>

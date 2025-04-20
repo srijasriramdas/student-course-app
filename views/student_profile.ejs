@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= student.name %> - Profile</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <h1>👤 <%= student.name %>'s Profile</h1>
+
+  <p><strong>Email:</strong> <%= student.email %></p>
+  <p><strong>Department:</strong> <%= student.department %></p>
+  <p><strong>Roll Number:</strong> <%= student.roll_number %></p>
+
+  <h2>📘 Enrolled Courses</h2>
+  <ul>
+    <% if (courses.length === 0) { %>
+      <li>No courses enrolled</li>
+    <% } else { %>
+      <% courses.forEach(course => { %>
+        <li><%= course.title %></li>
+      <% }); %>
+    <% } %>
+  </ul>
+
+  <a href="/students">⬅ Back to Students</a>
+</body>
+</html>

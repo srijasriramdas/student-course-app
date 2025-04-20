@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>📥 Enroll Student</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <h1>📥 Enroll a Student in a Course</h1>
+
+  <form action="/enroll" method="POST">
+    <label for="student_id">👨‍🎓 Student:</label>
+    <select name="student_id" required>
+      <% students.forEach(student => { %>
+        <option value="<%= student.id %>"><%= student.name %></option>
+      <% }); %>
+    </select>
+
+    <label for="course_id">📘 Course:</label>
+    <select name="course_id" required>
+      <% courses.forEach(course => { %>
+        <option value="<%= course.id %>"><%= course.title %></option>
+      <% }); %>
+    </select>
+
+    <button type="submit">✅ Enroll</button>
+  </form>
+
+  <a href="/">⬅ Back to Home</a>
+</body>
+</html>
