@@ -83,9 +83,7 @@ app.get('/students/:id', (req, res) => {
   });
 });
 
-
-// Show all courses
-// Browse and filter courses
+// Show all courses / filter by department
 app.get('/courses', (req, res) => {
   const { department } = req.query;
 
@@ -103,9 +101,7 @@ app.get('/courses', (req, res) => {
   });
 });
 
-
 // Add a new course
-// Add a new course with department
 app.post('/courses', (req, res) => {
   const { title, description, department } = req.body;
   db.query(
@@ -118,9 +114,7 @@ app.post('/courses', (req, res) => {
   );
 });
 
-
-
-// Show form to enroll a student in a course
+// Enroll a student
 app.get('/enroll', (req, res) => {
   db.query('SELECT * FROM students', (err, students) => {
     if (err) throw err;
@@ -131,16 +125,19 @@ app.get('/enroll', (req, res) => {
   });
 });
 
-// Handle enrollment form submission
 app.post('/enroll', (req, res) => {
   const { student_id, course_id } = req.body;
-  db.query('INSERT INTO enrollments (student_id, course_id) VALUES (?, ?)', [student_id, course_id], (err) => {
-    if (err) throw err;
-    res.redirect('/enrollments');
-  });
+  db.query(
+    'INSERT INTO enrollments (student_id, course_id) VALUES (?, ?)',
+    [student_id, course_id],
+    (err) => {
+      if (err) throw err;
+      res.redirect('/enrollments');
+    }
+  );
 });
 
-// View all enrollments
+// View enrollments
 app.get('/enrollments', (req, res) => {
   const sql = `
     SELECT students.name AS student, courses.title AS course
@@ -154,7 +151,7 @@ app.get('/enrollments', (req, res) => {
   });
 });
 
-// Filter courses by department
+// Search courses
 app.get('/courses/search', (req, res) => {
   const { department } = req.query;
 
@@ -172,7 +169,7 @@ app.get('/courses/search', (req, res) => {
   });
 });
 
-// Delete student by ID
+// Delete student
 app.post('/students/delete/:id', (req, res) => {
   const studentId = req.params.id;
   db.query('DELETE FROM students WHERE id = ?', [studentId], (err) => {
@@ -181,12 +178,165 @@ app.post('/students/delete/:id', (req, res) => {
   });
 });
 
-// Delete course by ID
+// Delete course
 app.post('/courses/delete/:id', (req, res) => {
   const courseId = req.params.id;
   db.query('DELETE FROM courses WHERE id = ?', [courseId], (err) => {
     if (err) throw err;
     res.redirect('/courses');
+  });
+});
+// Edit Student (GET form)
+app.get('/students/edit/:id', (req, res) => {
+  const studentId = req.params.id;
+  db.query('SELECT * FROM students WHERE id = ?', [studentId], (err, results) => {
+    if (err) throw err;
+    if (results.length === 0) return res.send('Student not found');
+    res.render('edit_student', { student: results[0] });
+  });
+});
+
+// Update Student (POST)
+app.post('/students/edit/:id', (req, res) => {
+  const { name, email, department } = req.body;
+  const id = req.params.id;
+  db.query(
+    'UPDATE students SET name = ?, email = ?, department = ? WHERE id = ?',
+    [name, email, department, id],
+    (err) => {
+      if (err) throw err;
+      res.redirect('/students/' + id);
+    }
+  );
+});
+
+// Edit Course (GET form)
+app.get('/courses/edit/:id', (req, res) => {
+  const courseId = req.params.id;
+  db.query('SELECT * FROM courses WHERE id = ?', [courseId], (err, results) => {
+    if (err) throw err;
+    if (results.length === 0) return res.send('Course not found');
+    res.render('edit_course', { course: results[0] });
+  });
+});
+
+// Update Course (POST)
+app.post('/courses/edit/:id', (req, res) => {
+  const { title, description, department } = req.body;
+  const id = req.params.id;
+  db.query(
+    'UPDATE courses SET title = ?, description = ?, department = ? WHERE id = ?',
+    [title, description, department, id],
+    (err) => {
+      if (err) throw err;
+      res.redirect('/courses');
+    }
+  );
+});
+
+// Course Detail Page
+app.get('/courses/:id', (req, res) => {
+  const courseId = req.params.id;
+
+  const courseQuery = 'SELECT * FROM courses WHERE id = ?';
+  const studentsQuery = `
+    SELECT students.id, students.name FROM enrollments
+    JOIN students ON enrollments.student_id = students.id
+    WHERE enrollments.course_id = ?
+  `;
+  const allStudentsQuery = 'SELECT id, name FROM students';
+
+  db.query(courseQuery, [courseId], (err, courseResults) => {
+    if (err) throw err;
+    if (courseResults.length === 0) return res.send('Course not found');
+
+    const course = courseResults[0];
+
+    db.query(studentsQuery, [courseId], (err2, enrolledStudents) => {
+      if (err2) throw err2;
+
+      db.query(allStudentsQuery, (err3, allStudents) => {
+        if (err3) throw err3;
+
+        res.render('course_detail', {
+          course,
+          enrolledStudents,
+          allStudents
+        });
+      });
+    });
+  });
+});
+
+// Enroll student from course detail page
+app.post('/courses/:id/enroll', (req, res) => {
+  const courseId = req.params.id;
+  const studentId = req.body.student_id;
+
+  db.query('INSERT INTO enrollments (student_id, course_id) VALUES (?, ?)', [studentId, courseId], (err) => {
+    if (err) throw err;
+    res.redirect(`/courses/${courseId}`);
+  });
+});
+
+
+// Dashboard
+app.get('/dashboard', (req, res) => {
+  const data = {};
+
+  db.query('SELECT COUNT(*) AS count FROM students', (err, studentResult) => {
+    if (err) throw err;
+    data.studentCount = studentResult[0].count;
+
+    db.query('SELECT COUNT(*) AS count FROM courses', (err2, courseResult) => {
+      if (err2) throw err2;
+      data.courseCount = courseResult[0].count;
+
+      db.query('SELECT COUNT(*) AS count FROM enrollments', (err3, enrollResult) => {
+        if (err3) throw err3;
+        data.enrollmentCount = enrollResult[0].count;
+
+        db.query('SELECT name FROM students ORDER BY id DESC LIMIT 5', (err4, latestStudents) => {
+          if (err4) throw err4;
+          data.latestStudents = latestStudents;
+
+          db.query('SELECT title FROM courses ORDER BY id DESC LIMIT 5', (err5, latestCourses) => {
+            if (err5) throw err5;
+            data.latestCourses = latestCourses;
+
+            // Most Popular Course
+            const popularQuery = `
+              SELECT courses.title, COUNT(*) AS count
+              FROM enrollments
+              JOIN courses ON enrollments.course_id = courses.id
+              GROUP BY enrollments.course_id
+              ORDER BY count DESC
+              LIMIT 1
+            `;
+            db.query(popularQuery, (err6, popularResult) => {
+              if (err6) throw err6;
+              data.mostPopularCourse = popularResult[0]?.title || 'No enrollments yet';
+
+              // Enrollments per department for Chart.js
+              const chartQuery = `
+                SELECT courses.department, COUNT(*) AS count
+                FROM enrollments
+                JOIN courses ON enrollments.course_id = courses.id
+                GROUP BY courses.department
+              `;
+              db.query(chartQuery, (err7, chartResult) => {
+                if (err7) throw err7;
+
+                data.chartLabels = chartResult.map(r => r.department);
+                data.chartCounts = chartResult.map(r => r.count);
+
+                res.render('dashboard', data);
+              });
+            });
+          });
+        });
+      });
+    });
   });
 });
 

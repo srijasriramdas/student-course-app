@@ -7,9 +7,15 @@
 <body>
   <h1>👤 <%= student.name %>'s Profile</h1>
 
-  <p><strong>Email:</strong> <%= student.email %></p>
-  <p><strong>Department:</strong> <%= student.department %></p>
-  <p><strong>Roll Number:</strong> <%= student.roll_number %></p>
+  <div class="student-details">
+    <p><strong>Email:</strong> <%= student.email %></p>
+    <p><strong>Department:</strong> <%= student.department %></p>
+    <p><strong>Roll Number:</strong> <%= student.roll_number %></p>
+    
+    <a href="/students/edit/<%= student.id %>">
+      <button style="margin-top: 10px;">✏️ Edit Student</button>
+    </a>
+  </div>
 
   <h2>📘 Enrolled Courses</h2>
   <ul>

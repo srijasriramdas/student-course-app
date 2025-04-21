@@ -5,6 +5,7 @@
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
+  <button id="themeToggle" class="theme-toggle">🌙 Dark Mode</button>
   <h1>📘 All Courses</h1>
 
   <!-- 🔍 Department Filter -->
@@ -37,8 +38,16 @@
   <!-- 📝 Course List -->
   <ul>
     <% courses.forEach(course => { %>
-      <li>
-        <strong><%= course.title %></strong> - <%= course.description %> (<%= course.department %>)
+      <li style="margin-bottom: 10px;">
+        <a href="/courses/<%= course.id %>">
+          <strong><%= course.title %></strong>
+        </a> - <%= course.description %> (<%= course.department %>)
+        
+
+        <a href="/courses/edit/<%= course.id %>">
+          <button>✏️ Edit</button>
+        </a>
+
         <form action="/courses/delete/<%= course.id %>" method="POST" style="display:inline;">
           <button type="submit" onclick="return confirm('Are you sure?')">🗑️ Delete</button>
         </form>
@@ -47,5 +56,23 @@
   </ul>
 
   <a href="/">⬅ Back to Home</a>
+
+  <script>
+    const toggle = document.getElementById('themeToggle');
+    const body = document.body;
+
+    if (localStorage.getItem('theme') === 'dark') {
+      body.classList.add('dark-mode');
+      toggle.textContent = '☀️ Light Mode';
+    }
+
+    toggle.addEventListener('click', () => {
+      body.classList.toggle('dark-mode');
+      const isDark = body.classList.contains('dark-mode');
+      toggle.textContent = isDark ? '☀️ Light Mode' : '🌙 Dark Mode';
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    });
+  </script>
+
 </body>
 </html>

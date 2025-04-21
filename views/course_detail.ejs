@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= course.title %> - Details</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <h1>📘 <%= course.title %> - Details</h1>
+  <p><strong>Description:</strong> <%= course.description %></p>
+  <p><strong>Department:</strong> <%= course.department %></p>
+
+  <h2>👨‍🎓 Enrolled Students</h2>
+  <ul>
+    <% if (enrolledStudents.length === 0) { %>
+      <li>No students enrolled yet</li>
+    <% } else { %>
+      <% enrolledStudents.forEach(s => { %>
+        <li><a href="/students/<%= s.id %>"><%= s.name %></a></li>
+      <% }) %>
+    <% } %>
+  </ul>
+
+  <h3>➕ Enroll New Student</h3>
+  <form action="/courses/<%= course.id %>/enroll" method="POST">
+    <select name="student_id" required>
+      <% allStudents.forEach(student => { %>
+        <option value="<%= student.id %>"><%= student.name %></option>
+      <% }) %>
+    </select>
+    <button type="submit">Enroll</button>
+  </form>
+
+  <br><a href="/courses">⬅ Back to Courses</a>
+</body>
+</html>
