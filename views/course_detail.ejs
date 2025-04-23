@@ -5,6 +5,8 @@
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
+  <%- include('partials/flash') %>
+
   <h1>📘 <%= course.title %> - Details</h1>
   <p><strong>Description:</strong> <%= course.description %></p>
   <p><strong>Department:</strong> <%= course.department %></p>
